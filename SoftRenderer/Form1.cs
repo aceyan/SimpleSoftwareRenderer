@@ -47,7 +47,7 @@ namespace SoftRenderer
             InitializeComponent();
             try
             {
-                System.Drawing.Image img = System.Drawing.Image.FromFile("texture.jpg");//需要自己提供一个纹理放在exe文件目录
+                System.Drawing.Image img = System.Drawing.Image.FromFile("../../Texture/texture.jpg");
                 _texture = new Bitmap(img, 256, 256);
             }
             catch(Exception)
