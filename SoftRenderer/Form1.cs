@@ -45,9 +45,16 @@ namespace SoftRenderer
         public SoftRendererDemo()
         {
             InitializeComponent();
-            System.Drawing.Image img = System.Drawing.Image.FromFile("texture.jpg");
-            _texture = new Bitmap(img, 256, 256);
-            //initTexture();
+            try
+            {
+                System.Drawing.Image img = System.Drawing.Image.FromFile("texture.jpg");//需要自己提供一个纹理放在exe文件目录
+                _texture = new Bitmap(img, 256, 256);
+            }
+            catch(Exception)
+            {
+                _texture = new Bitmap(256, 256);
+                initTexture();
+            }
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
@@ -66,13 +73,11 @@ namespace SoftRenderer
 
         public void initTexture()
         {
-
             for (int j = 0; j < 256; j++)
             {
                 for (int i = 0; i < 256; i++)
                 {
-                    int x = i / 32, y = j / 32;
-                    _texture.SetPixel(j, i, System.Drawing.Color.Yellow);
+                    _texture.SetPixel(j, i, ((j + i) % 32 == 0) ? System.Drawing.Color.White : System.Drawing.Color.Green);
                 }
             }
         }
