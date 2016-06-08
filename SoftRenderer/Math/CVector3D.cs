@@ -109,7 +109,7 @@ namespace SoftRenderer.Math
             float x = lhs.y * rhs.z - lhs.z * rhs.y;
             float y = lhs.z * rhs.x - lhs.x * rhs.z;
             float z = lhs.x * rhs.y - lhs.y * rhs.x;
-            return new CVector3D(x, y, z, 1);
+            return new CVector3D(x, y, z, 0);
         }
     
     }

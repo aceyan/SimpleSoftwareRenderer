@@ -159,17 +159,24 @@ namespace SoftRenderer
         /// <returns>是否通关背面消隐测试</returns>
         private bool BackFaceCulling(CVertex p1, CVertex p2, CVertex p3)
         {
-            CVector3D v1 = p2.point - p1.point;
-            CVector3D v2 = p3.point - p2.point;
-            CVector3D normal = CVector3D.Cross(v1, v2);
-            //由于在视空间中，所以相机点就是（0,0,0）
-            CVector3D viewDir = p1.point - new CVector3D(0,0,0);
-            if (CVector3D.Dot(normal,viewDir) > 0)
-            {
-                _showTrisCount++;
+            if(_currentMode == RenderMode.Wireframe)
+            {//线框模式不进行背面消隐
                 return true;
             }
-            return false;
+            else
+            {
+                CVector3D v1 = p2.point - p1.point;
+                CVector3D v2 = p3.point - p2.point;
+                CVector3D normal = CVector3D.Cross(v1, v2);
+                //由于在视空间中，所以相机点就是（0,0,0）
+                CVector3D viewDir = p1.point - new CVector3D(0, 0, 0);
+                if (CVector3D.Dot(normal, viewDir) > 0)
+                {
+                    _showTrisCount++;
+                    return true;
+                }
+                return false;
+            }
         }
 
         private void Draw(CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
@@ -242,7 +249,17 @@ namespace SoftRenderer
             TransformToScreen(p3);
 
             //--------------------光栅化阶段---------------------------
-            TriangleRasterization(p1, p2, p3);
+
+            if(_currentMode == RenderMode.Wireframe)
+            {//线框模式
+                BresenhamDrawLine(p1, p2);
+                BresenhamDrawLine(p2, p3);
+                BresenhamDrawLine(p3, p1);
+            }
+            else
+            {
+                TriangleRasterization(p1, p2, p3);
+            }
         }
         /// <summary>
         /// 光栅化三角形
@@ -486,6 +503,16 @@ namespace SoftRenderer
 
         }
 
+        /// <summary>
+        /// 绘制直线，使用bresenham算法
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        private void BresenhamDrawLine(CVertex p1, CVertex p2)
+        {
+            //int dx = 
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
         }
@@ -503,8 +530,9 @@ namespace SoftRenderer
             {
                 ClearBuff();
                 rot += 0.05f;
-                CMatrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetTranslate(0, 0, 5);
-                CMatrix4x4 v = MathUntil.GetView(new CVector3D(0, 0, 0, 1), new CVector3D(0, 0, 1, 1), new CVector3D(0, 1, 0, 1));
+                CMatrix4x4 m = MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0,0,10);
+
+                CMatrix4x4 v = MathUntil.GetView(new CVector3D(0, 0, 0, 1), new CVector3D(0, 0, 1, 1), new CVector3D(0, 1, 0, 0));
                 CMatrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
                 //
                 Draw(m, v, p);

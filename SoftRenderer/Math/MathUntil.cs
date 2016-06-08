@@ -39,31 +39,7 @@ namespace SoftRenderer.Math
                                   0, 0, z, 0,
                                   0, 0, 0, 1);
         }
-        /// <summary>
-        /// 获取旋转矩阵
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        /// <param name="r">弧度</param>
-        /// <returns></returns>
-        public static CMatrix4x4 GetRotate(float x, float y, float z, float r)
-        {
-            CMatrix4x4 rm = new CMatrix4x4();
-            rm.Identity();
-            rm[0, 0] = (float)(x * x * (1 - System.Math.Cos(r)) + System.Math.Cos(r));
-            rm[0, 1] = (float)(x * y * (1 - System.Math.Cos(r)) +  z * System.Math.Sin(r));
-            rm[0, 2] = (float)(x * z * (1 - System.Math.Cos(r)) - y * System.Math.Sin(r));
-            //
-            rm[1, 0] = (float)(y * x * (1 - System.Math.Cos(r)) - z * System.Math.Sin(r));
-            rm[1, 1] = (float)(y * y * (1 - System.Math.Cos(r)) + System.Math.Cos(r));
-            rm[1, 2] = (float)(y * z * (1 - System.Math.Cos(r)) + x * System.Math.Sin(r));
-            //
-            rm[2, 0] = (float)(z * x * (1 - System.Math.Cos(r)) + y * System.Math.Sin(r));
-            rm[2, 1] = (float)(z * y * (1 - System.Math.Cos(r)) - x * System.Math.Sin(r));
-            rm[2, 2] = (float)(z * z * (1 - System.Math.Cos(r)) + System.Math.Cos(r));
-            return rm;
-        }
+
 
         public static CMatrix4x4 GetRotateY(float r)
         {
