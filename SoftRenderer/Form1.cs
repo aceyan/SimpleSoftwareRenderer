@@ -42,6 +42,7 @@ namespace SoftRenderer
         private Graphics _frameG;
         private float[,] _zBuff;
         private RenderMode _currentMode;
+        private uint _showTrisCount;
         public SoftRendererDemo()
         {
             InitializeComponent();
@@ -165,6 +166,7 @@ namespace SoftRenderer
             CVector3D viewDir = p1.point - new CVector3D(0,0,0);
             if (CVector3D.Dot(normal,viewDir) > 0)
             {
+                _showTrisCount++;
                 return true;
             }
             return false;
@@ -172,12 +174,14 @@ namespace SoftRenderer
 
         private void Draw(CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
         {
+            _showTrisCount = 0;
             DrawPanel(0, 1, 2, 3, m, v, p);
             DrawPanel(7, 6, 5, 4, m, v, p);
             DrawPanel(0, 4, 5, 1, m, v, p);
             DrawPanel(1, 5, 6, 2, m, v, p);
             DrawPanel(2, 6, 7, 3, m, v, p);
             DrawPanel(3, 7, 4, 0, m, v, p);
+            Console.WriteLine("显示的三角形数："+ _showTrisCount);
         }
         /// <summary>
         /// 绘制平面
@@ -267,7 +271,7 @@ namespace SoftRenderer
                 }
                 else
                 {//平底
-                    DrawTriangleBottom(p2, p1, p1);
+                    DrawTriangleBottom(p2, p1, p3);
                 }
             }
             else if (p2.point.y == p3.point.y)
@@ -498,11 +502,8 @@ namespace SoftRenderer
             lock (_frameBuff)
             {
                 ClearBuff();
-                CMatrix4x4 m = new CMatrix4x4();
-                m.Identity();
-                m[3, 2] = 5f;
                 rot += 0.05f;
-                m = MathUntil.GetRotateY(rot) * m;
+                CMatrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetTranslate(0, 0, 5);
                 CMatrix4x4 v = MathUntil.GetView(new CVector3D(0, 0, 0, 1), new CVector3D(0, 0, 1, 1), new CVector3D(0, 1, 0, 1));
                 CMatrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
                 //

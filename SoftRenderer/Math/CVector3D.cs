@@ -51,7 +51,7 @@ namespace SoftRenderer.Math
         /// <summary>
         /// 规范化
         /// </summary>
-        public void Normalize()
+        public CVector3D Normalize()
         {
             float length = Length;
             if(length != 0)
@@ -61,6 +61,7 @@ namespace SoftRenderer.Math
                 y *= s;
                 z *= s;
             }
+            return this;
         }
         /// <summary>
         /// 向量变换
