@@ -59,8 +59,7 @@ namespace SoftRenderer
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
-            _currentMode = RenderMode.Textured;
-            //_currentMode = RenderMode.VertexColor;
+            _currentMode = RenderMode.Textured;//渲染模式
 
             System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
     
@@ -510,7 +509,69 @@ namespace SoftRenderer
         /// <param name="p2"></param>
         private void BresenhamDrawLine(CVertex p1, CVertex p2)
         {
-            //int dx = 
+            int x = (int)(System.Math.Round(p1.point.x, MidpointRounding.AwayFromZero));
+            int y = (int)(System.Math.Round(p1.point.y, MidpointRounding.AwayFromZero));
+            int dx = (int)(System.Math.Round(p2.point.x - p1.point.x, MidpointRounding.AwayFromZero));
+            int dy = (int)(System.Math.Round(p2.point.y - p1.point.y, MidpointRounding.AwayFromZero));
+            int stepx = 1;
+            int stepy = 1;
+
+            if(dx >= 0)
+            {
+                stepx = 1;
+            }
+            else
+            {
+                stepx = -1;
+                dx = System.Math.Abs(dx);
+            }
+            
+            if(dy >= 0)
+            {
+                stepy = 1;
+            }
+            else
+            {
+                stepy = -1;
+                dy = System.Math.Abs(dy);
+            }
+
+            int dx2 = 2 * dx;
+            int dy2 = 2 * dy;
+
+            if(dx > dy)
+            {
+                int error = dy2 - dx;
+                for (int i = 0; i <= dx; i++)
+                {
+                    _frameBuff.SetPixel(x, y, System.Drawing.Color.White);
+                    if(error >= 0)
+                    {
+                        error -= dx2;
+                        y += stepy;
+                    }
+                    error += dy2;
+                    x += stepx;
+
+                }
+            }
+            else
+            {
+                int error = dx2 - dy;
+                for (int i = 0; i <= dy; i++)
+                {
+                    _frameBuff.SetPixel(x, y, System.Drawing.Color.White);
+                    if (error >= 0)
+                    {
+                        error -= dy2;
+                        x += stepx;
+                    }
+                    error += dx2;
+                    y += stepy;
+
+                }
+            }
+
         }
 
         protected override void OnPaint(PaintEventArgs e)
