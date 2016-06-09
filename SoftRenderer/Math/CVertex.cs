@@ -9,7 +9,7 @@ namespace SoftRenderer.Math
     /// <summary>
     /// 顶点信息
     /// </summary>
-    public class CVertex
+    public struct CVertex
     {
         /// <summary>
         /// 顶点位置
@@ -29,9 +29,15 @@ namespace SoftRenderer.Math
         /// </summary>
         public float onePerZ;
 
-        public CVertex()
+        public CVertex(CVector3D point,float u, float v, float r, float g, float b)
         {
-            point = new CVector3D();
+            this.point = point;
+            color.r = r;
+            color.g = g;
+            color.b = b;
+            onePerZ = 1;
+            this.u = u;
+            this.v = v;
         }
 
         public CVertex(float x, float y, float z, float u, float v, float r, float g, float b)

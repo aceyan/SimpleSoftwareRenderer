@@ -93,7 +93,7 @@ namespace SoftRenderer
         /// <summary>
         /// 进行mv矩阵变换，从本地模型空间到世界空间，再到相机空间
         /// </summary>
-        private void SetMVTransform(CMatrix4x4 m, CMatrix4x4 v, CVertex vertex)
+        private void SetMVTransform(CMatrix4x4 m, CMatrix4x4 v,ref CVertex vertex)
         {
             vertex.point = vertex.point * m * v;
         }
@@ -102,7 +102,7 @@ namespace SoftRenderer
         /// </summary>
         /// <param name="p"></param>
         /// <param name="vertex"></param>
-        private void SetProjectionTransform(CMatrix4x4 p, CVertex vertex)
+        private void SetProjectionTransform(CMatrix4x4 p,ref CVertex vertex)
         {
               vertex.point = vertex.point * p;
             //得到齐次裁剪空间的点 v.point.w 中保存着原来的z(具体是z还是-z要看使用的投影矩阵,我们使用投影矩阵是让w中保存着z)
@@ -137,7 +137,7 @@ namespace SoftRenderer
         /// <summary>
         /// 从齐次剪裁坐标系转到屏幕坐标
         /// </summary>
-        private void TransformToScreen(CVertex v)
+        private void TransformToScreen(ref CVertex v)
         {
             if(v.point.w != 0)
             {
@@ -199,14 +199,14 @@ namespace SoftRenderer
         /// <param name="mvp">mvp矩阵</param>
         private void DrawPanel(int vIndex1, int vIndex2, int vIndex3, int vIndex4, CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
         {
-            CVertex p1 = new CVertex(mesh[vIndex1]);
-            CVertex p2 = new CVertex(mesh[vIndex2]);
-            CVertex p3 = new CVertex(mesh[vIndex3]);
+            CVertex p1 = mesh[vIndex1];
+            CVertex p2 = mesh[vIndex2];
+            CVertex p3 = mesh[vIndex3];
             //
             DrawTriangle(p1, p2, p3, m, v, p);
-            p1 = new CVertex(mesh[vIndex1]);
-            p3 = new CVertex(mesh[vIndex3]);
-            CVertex p4 = new CVertex(mesh[vIndex4]);
+            p1 = mesh[vIndex1];
+            p3 = mesh[vIndex3];
+            CVertex p4 = mesh[vIndex4];
 
             DrawTriangle(p1, p3, p4, m, v, p);
         }
@@ -221,9 +221,9 @@ namespace SoftRenderer
         {
             //--------------------几何阶段---------------------------
             //变换到相机空间
-            SetMVTransform(m, v, p1);
-            SetMVTransform(m, v, p2);
-            SetMVTransform(m, v, p3);
+            SetMVTransform(m, v,ref p1);
+            SetMVTransform(m, v, ref p2);
+            SetMVTransform(m, v, ref p3);
             
             //在相机空间进行背面消隐
             if (BackFaceCulling(p1, p2, p3) == false)
@@ -232,9 +232,9 @@ namespace SoftRenderer
             }
 
             //变换到齐次剪裁空间
-            SetProjectionTransform(p, p1);
-            SetProjectionTransform(p, p2);
-            SetProjectionTransform(p, p3);
+            SetProjectionTransform(p, ref p1);
+            SetProjectionTransform(p, ref p2);
+            SetProjectionTransform(p, ref p3);
 
             //裁剪
             if (Clip(p1) == false || Clip(p2) == false || Clip(p3) == false)
@@ -243,9 +243,9 @@ namespace SoftRenderer
             }
 
             //变换到屏幕坐标
-            TransformToScreen(p1);
-            TransformToScreen(p2);
-            TransformToScreen(p3);
+            TransformToScreen(ref p1);
+            TransformToScreen(ref p2);
+            TransformToScreen(ref p3);
 
             //--------------------光栅化阶段---------------------------
 
@@ -303,10 +303,10 @@ namespace SoftRenderer
             }
             else
             {//分割三角形
-                CVertex top = null;
+                CVertex top;
 
-                CVertex bottom = null;
-                CVertex middle = null;
+                CVertex bottom;
+                CVertex middle;
                 if(p1.point.y > p2.point.y && p2.point.y > p3.point.y)
                 {
                     top = p3;
@@ -342,6 +342,11 @@ namespace SoftRenderer
                     top = p1;
                     middle = p3;
                     bottom = p2;
+                }
+                else
+                {
+                    //
+                    return;
                 }
                 //插值求中间点x
                 float middlex = (middle.point.y - top.point.y) * (bottom.point.x - top.point.x) / (bottom.point.y - top.point.y) + top.point.x;

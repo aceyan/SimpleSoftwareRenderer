@@ -9,17 +9,13 @@ namespace SoftRenderer.Math
     /// <summary>
     /// 行向量
     /// </summary>
-    public class CVector3D
+    public struct CVector3D
     {
         public float x;
         public float y;
         public float z;
         public float w;
 
-        public CVector3D()
-        {
-            x = y = z = w = 0;
-        }
 
         public CVector3D(float x, float y, float z, float w)
         {
