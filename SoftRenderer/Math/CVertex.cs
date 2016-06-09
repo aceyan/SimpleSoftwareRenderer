@@ -32,6 +32,7 @@ namespace SoftRenderer.Math
         public CVertex(CVector3D point,float u, float v, float r, float g, float b)
         {
             this.point = point;
+            this.point.w = 1;
             color.r = r;
             color.g = g;
             color.b = b;

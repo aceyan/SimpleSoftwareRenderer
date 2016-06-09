@@ -59,6 +59,8 @@
     <Compile Include="Math\Point2D.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test\QuadTestData.cs" />
+    <Compile Include="Test\CubeTestData.cs" />
     <Compile Include="Test\VectorMatrixTestCase.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

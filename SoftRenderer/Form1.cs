@@ -23,18 +23,6 @@ namespace SoftRenderer
         //                            new CVertex(1,1,0,0,0, 0, 1, 0)
         //                         };
 
-        //cube
-        private CVertex[] mesh = {  
-                                    new CVertex( -1,  1, -1, 0, 1, 0, 1, 0),
-                                    new CVertex(-1, -1, -1, 1, 1, 0, 0, 1),
-                                    new CVertex(1, -1, -1, 1, 0, 1, 0, 0),
-                                    new CVertex(1, 1, -1, 0, 0, 0, 0, 1),
-                                    //
-                                    new CVertex( -1,  1, 1, 0 , 0, 0, 0, 1f),
-                                    new CVertex(-1, -1, 1, 1, 0, 0, 1f, 0),
-                                    new CVertex(1, -1, 1 , 1, 1, 1, 0, 0),
-                                    new CVertex(1, 1, 1, 0, 1, 0, 1, 0)
-                                 };
 
                                  
         private Bitmap _texture;//纹理
@@ -43,6 +31,7 @@ namespace SoftRenderer
         private float[,] _zBuff;
         private RenderMode _currentMode;
         private uint _showTrisCount;
+        private Mesh _mesh;
         public SoftRendererDemo()
         {
             InitializeComponent();
@@ -60,6 +49,10 @@ namespace SoftRenderer
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
             _currentMode = RenderMode.Textured;//渲染模式
+            
+            _mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors);
+            //_mesh = new Mesh(QuadTestData.pointList, QuadTestData.indexs, QuadTestData.uvs, QuadTestData.vertColors); //打开注释可以切换mesh
+
 
             System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
     
@@ -181,35 +174,13 @@ namespace SoftRenderer
         private void Draw(CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
         {
             _showTrisCount = 0;
-            DrawPanel(0, 1, 2, 3, m, v, p);
-            DrawPanel(7, 6, 5, 4, m, v, p);
-            DrawPanel(0, 4, 5, 1, m, v, p);
-            DrawPanel(1, 5, 6, 2, m, v, p);
-            DrawPanel(2, 6, 7, 3, m, v, p);
-            DrawPanel(3, 7, 4, 0, m, v, p);
+            for (int i = 0; i + 2 < _mesh.Verts.Length; i += 3)
+            {
+                DrawTriangle(_mesh.Verts[i], _mesh.Verts[i + 1], _mesh.Verts[i + 2], m, v, p);
+            }
             Console.WriteLine("显示的三角形数："+ _showTrisCount);
         }
-        /// <summary>
-        /// 绘制平面
-        /// </summary>
-        /// <param name="vIndex1">顶点索引</param>
-        /// <param name="vIndex2">顶点索引</param>
-        /// <param name="vIndex3">顶点索引</param>
-        /// <param name="vIndex4">顶点索引</param>
-        /// <param name="mvp">mvp矩阵</param>
-        private void DrawPanel(int vIndex1, int vIndex2, int vIndex3, int vIndex4, CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
-        {
-            CVertex p1 = mesh[vIndex1];
-            CVertex p2 = mesh[vIndex2];
-            CVertex p3 = mesh[vIndex3];
-            //
-            DrawTriangle(p1, p2, p3, m, v, p);
-            p1 = mesh[vIndex1];
-            p3 = mesh[vIndex3];
-            CVertex p4 = mesh[vIndex4];
 
-            DrawTriangle(p1, p3, p4, m, v, p);
-        }
         /// <summary>
         /// 绘制三角形
         /// </summary>
@@ -345,7 +316,7 @@ namespace SoftRenderer
                 }
                 else
                 {
-                    //
+                    //三点共线
                     return;
                 }
                 //插值求中间点x
@@ -596,7 +567,7 @@ namespace SoftRenderer
             {
                 ClearBuff();
                 rot += 0.05f;
-                CMatrix4x4 m = MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0,0,10);
+                CMatrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0, 0, 10);
 
                 CMatrix4x4 v = MathUntil.GetView(new CVector3D(0, 0, 0, 1), new CVector3D(0, 0, 1, 1), new CVector3D(0, 1, 0, 0));
                 CMatrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);

@@ -26,7 +26,7 @@ namespace SoftRenderer.Math
         /// <param name="indexs">顶点索引列表</param>
         /// <param name="Uvs">uv坐标列表</param>
         /// <param name="vertColor">顶点色列表</param>
-        public Mesh(CVector3D[] pointList, int[] indexs, Point2D[] Uvs, CVector3D[] vertColor)
+        public Mesh(CVector3D[] pointList, int[] indexs, Point2D[] Uvs, CVector3D[] vertColors)
         {
             _verts = new CVertex[indexs.Length];
             //生成顶点列表
@@ -34,7 +34,7 @@ namespace SoftRenderer.Math
             {
                 int pointIndex = indexs[i];
                 CVector3D point = pointList[pointIndex];
-                _verts[i] = new CVertex(point, Uvs[pointIndex].x, Uvs[pointIndex].y, vertColor[pointIndex].x, vertColor[pointIndex].y, vertColor[pointIndex].z);
+                _verts[i] = new CVertex(point, Uvs[i].x, Uvs[i].y, vertColors[i].x, vertColors[i].y, vertColors[i].z);
             }
         }
     }
