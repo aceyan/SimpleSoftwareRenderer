@@ -16,15 +16,6 @@ namespace SoftRenderer
 {
     public partial class SoftRendererDemo : Form
     {
-        //quad
-        //private CVertex[] mesh = {  new CVertex(-1,1,0,0,1, 1, 0, 0),
-        //                            new CVertex(-1,-1,0,1,1, 0, 1f, 0),
-        //                            new CVertex(1,-1,0,1,0, 0, 0, 1f),
-        //                            new CVertex(1,1,0,0,0, 0, 1, 0)
-        //                         };
-
-
-                                 
         private Bitmap _texture;//纹理
         private Bitmap _frameBuff;//用一张bitmap来做帧缓冲
         private Graphics _frameG;
@@ -34,6 +25,7 @@ namespace SoftRenderer
         private Mesh _mesh;
         public SoftRendererDemo()
         {
+            //VectorMatrixTestCase.Test();
             InitializeComponent();
             try
             {

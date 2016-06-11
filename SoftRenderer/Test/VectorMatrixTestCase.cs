@@ -37,6 +37,25 @@ namespace SoftRenderer.Test
                                            0, 1, 0, 0,
                                            0, 0, 1, 0,
                                            1, 2, 3, 1);
+
+            CMatrix4x4 mat5 = new CMatrix4x4(1, 2, 3, 4,
+                                           4, 3, 2, 1,
+                                           0, -1, 2, 0,
+                                           1, 6, 4, -2);
+            Console.WriteLine("mat5   Determinate:" + mat5.Determinate());
+            Console.WriteLine("mat5   GetAdjoint:");
+            showMat(mat5.GetAdjoint());
+
+            Console.WriteLine("mat5   Inverse:" );
+            showMat(mat5.Inverse());
+
+            Console.WriteLine("mat5 *  mat5 Inverse:");
+            showMat(mat5 * mat5.Inverse());
+
+            Console.WriteLine("mat2   Transpose:");
+            showMat(mat2.Transpose());
+
+
             CMatrix4x4 matr1 = mat1 * mat3;
             Console.WriteLine("mat1 * mat3:");
             showMat(matr1);
