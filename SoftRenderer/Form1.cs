@@ -1,4 +1,5 @@
 ﻿using SoftRenderer.Math;
+using SoftRenderer.RenderData;
 using SoftRenderer.Test;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,14 @@ namespace SoftRenderer
         private Bitmap _texture;//纹理
         private Bitmap _frameBuff;//用一张bitmap来做帧缓冲
         private Graphics _frameG;
-        private float[,] _zBuff;
-        private RenderMode _currentMode;
-        private uint _showTrisCount;
+        private float[,] _zBuff;//z缓冲，用来做深度测试
+        private RenderMode _currentMode;//渲染模式
+        private LightMode _lightMode;//光照模式
         private Mesh _mesh;
+        private Light _light;
+
+        private uint _showTrisCount;//测试数据，记录当前显示的三角形数
+
         public SoftRendererDemo()
         {
             //VectorMatrixTestCase.Test();
@@ -40,10 +45,11 @@ namespace SoftRenderer
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
-            _currentMode = RenderMode.Textured;//渲染模式
-            
-            _mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors);
-            //_mesh = new Mesh(QuadTestData.pointList, QuadTestData.indexs, QuadTestData.uvs, QuadTestData.vertColors); //打开注释可以切换mesh
+            _currentMode = RenderMode.VertexColor;//渲染模式
+            _lightMode = LightMode.On;
+
+            //_mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors, CubeTestData.norlmas);
+            _mesh = new Mesh(QuadTestData.pointList, QuadTestData.indexs, QuadTestData.uvs, QuadTestData.vertColors, CubeTestData.norlmas); //打开注释可以切换mesh
 
 
             System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
@@ -78,7 +84,7 @@ namespace SoftRenderer
         /// <summary>
         /// 进行mv矩阵变换，从本地模型空间到世界空间，再到相机空间
         /// </summary>
-        private void SetMVTransform(CMatrix4x4 m, CMatrix4x4 v,ref CVertex vertex)
+        private void SetMVTransform(Matrix4x4 m, Matrix4x4 v,ref Vertex vertex)
         {
             vertex.point = vertex.point * m * v;
         }
@@ -87,7 +93,7 @@ namespace SoftRenderer
         /// </summary>
         /// <param name="p"></param>
         /// <param name="vertex"></param>
-        private void SetProjectionTransform(CMatrix4x4 p,ref CVertex vertex)
+        private void SetProjectionTransform(Matrix4x4 p,ref Vertex vertex)
         {
               vertex.point = vertex.point * p;
             //得到齐次裁剪空间的点 v.point.w 中保存着原来的z(具体是z还是-z要看使用的投影矩阵,我们使用投影矩阵是让w中保存着z)
@@ -100,15 +106,15 @@ namespace SoftRenderer
             vertex.u *= vertex.onePerZ;
             vertex.v *= vertex.onePerZ;
                 //
-            vertex.color.r *= vertex.onePerZ;
-            vertex.color.g *= vertex.onePerZ;
-            vertex.color.b *= vertex.onePerZ;
+            vertex.vcolor.r *= vertex.onePerZ;
+            vertex.vcolor.g *= vertex.onePerZ;
+            vertex.vcolor.b *= vertex.onePerZ;
         }
         /// <summary>
         /// 检查是否裁剪这个顶点,简单的cvv裁剪,在透视除法之前
         /// </summary>
         /// <returns>是否通关剪裁</returns>
-        private bool Clip(CVertex v)
+        private bool Clip(Vertex v)
         {
             //cvv为 x-1,1  y-1,1  z0,1
             if(v.point.x >= -v.point.w && v.point.x <= v.point.w &&
@@ -122,7 +128,7 @@ namespace SoftRenderer
         /// <summary>
         /// 从齐次剪裁坐标系转到屏幕坐标
         /// </summary>
-        private void TransformToScreen(ref CVertex v)
+        private void TransformToScreen(ref Vertex v)
         {
             if(v.point.w != 0)
             {
@@ -141,7 +147,7 @@ namespace SoftRenderer
         /// 背面消隐
         /// </summary>
         /// <returns>是否通关背面消隐测试</returns>
-        private bool BackFaceCulling(CVertex p1, CVertex p2, CVertex p3)
+        private bool BackFaceCulling(Vertex p1, Vertex p2, Vertex p3)
         {
             if(_currentMode == RenderMode.Wireframe)
             {//线框模式不进行背面消隐
@@ -149,12 +155,12 @@ namespace SoftRenderer
             }
             else
             {
-                CVector3D v1 = p2.point - p1.point;
-                CVector3D v2 = p3.point - p2.point;
-                CVector3D normal = CVector3D.Cross(v1, v2);
+                Vector3D v1 = p2.point - p1.point;
+                Vector3D v2 = p3.point - p2.point;
+                Vector3D normal = Vector3D.Cross(v1, v2);
                 //由于在视空间中，所以相机点就是（0,0,0）
-                CVector3D viewDir = p1.point - new CVector3D(0, 0, 0);
-                if (CVector3D.Dot(normal, viewDir) > 0)
+                Vector3D viewDir = p1.point - new Vector3D(0, 0, 0);
+                if (Vector3D.Dot(normal, viewDir) > 0)
                 {
                     _showTrisCount++;
                     return true;
@@ -163,12 +169,12 @@ namespace SoftRenderer
             }
         }
 
-        private void Draw(CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
+        private void Draw(Matrix4x4 m, Matrix4x4 v, Matrix4x4 p)
         {
             _showTrisCount = 0;
-            for (int i = 0; i + 2 < _mesh.Verts.Length; i += 3)
+            for (int i = 0; i + 2 < _mesh.Vertices.Length; i += 3)
             {
-                DrawTriangle(_mesh.Verts[i], _mesh.Verts[i + 1], _mesh.Verts[i + 2], m, v, p);
+                DrawTriangle(_mesh.Vertices[i], _mesh.Vertices[i + 1], _mesh.Vertices[i + 2], m, v, p);
             }
             Console.WriteLine("显示的三角形数："+ _showTrisCount);
         }
@@ -180,7 +186,7 @@ namespace SoftRenderer
         /// <param name="p2"></param>
         /// <param name="p3"></param>
         /// <param name="mvp"></param>
-        private void DrawTriangle(CVertex p1, CVertex p2, CVertex p3, CMatrix4x4 m, CMatrix4x4 v, CMatrix4x4 p)
+        private void DrawTriangle(Vertex p1, Vertex p2, Vertex p3, Matrix4x4 m, Matrix4x4 v, Matrix4x4 p)
         {
             //--------------------几何阶段---------------------------
             //变换到相机空间
@@ -229,7 +235,7 @@ namespace SoftRenderer
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="p3"></param>
-        private void TriangleRasterization(CVertex p1, CVertex p2, CVertex p3)
+        private void TriangleRasterization(Vertex p1, Vertex p2, Vertex p3)
         {
             if(p1.point.y == p2.point.y)
             {
@@ -266,10 +272,10 @@ namespace SoftRenderer
             }
             else
             {//分割三角形
-                CVertex top;
+                Vertex top;
 
-                CVertex bottom;
-                CVertex middle;
+                Vertex bottom;
+                Vertex middle;
                 if(p1.point.y > p2.point.y && p2.point.y > p3.point.y)
                 {
                     top = p3;
@@ -316,7 +322,7 @@ namespace SoftRenderer
                 float dy = middle.point.y - top.point.y;
                 float t = dy / (bottom.point.y - top.point.y);
                 //插值生成左右顶点
-                CVertex newMiddle = new CVertex();
+                Vertex newMiddle = new Vertex();
                 newMiddle.point.x = middlex;
                 newMiddle.point.y = middle.point.y;
                 MathUntil.ScreenSpaceLerpVertex(ref newMiddle, top, bottom, t);
@@ -334,7 +340,7 @@ namespace SoftRenderer
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="p3"></param>
-        private void DrawTriangleTop(CVertex p1, CVertex p2, CVertex p3)
+        private void DrawTriangleTop(Vertex p1, Vertex p2, Vertex p3)
         {
             for (float y = p1.point.y; y <= p3.point.y; y+= 0.5f)
             {
@@ -347,12 +353,12 @@ namespace SoftRenderer
                     float dy = y - p1.point.y;
                     float t = dy / (p3.point.y - p1.point.y);
                     //插值生成左右顶点
-                    CVertex new1 = new CVertex();
+                    Vertex new1 = new Vertex();
                     new1.point.x = xl;
                     new1.point.y = y;
                     MathUntil.ScreenSpaceLerpVertex(ref new1, p1, p3, t);
                     //
-                    CVertex new2 = new CVertex();
+                    Vertex new2 = new Vertex();
                     new2.point.x = xr;
                     new2.point.y = y;
                     MathUntil.ScreenSpaceLerpVertex(ref new2, p2, p3, t);
@@ -375,7 +381,7 @@ namespace SoftRenderer
         /// <param name="p2"></param>
         /// <param name="p3"></param>
 
-        private void DrawTriangleBottom(CVertex p1, CVertex p2, CVertex p3)
+        private void DrawTriangleBottom(Vertex p1, Vertex p2, Vertex p3)
         {
             for (float y = p1.point.y; y <= p2.point.y; y += 0.5f)
             {
@@ -388,12 +394,12 @@ namespace SoftRenderer
                     float dy = y - p1.point.y;
                     float t = dy / (p2.point.y - p1.point.y);
                     //插值生成左右顶点
-                    CVertex new1 = new CVertex();
+                    Vertex new1 = new Vertex();
                     new1.point.x = xl;
                     new1.point.y = y;
                     MathUntil.ScreenSpaceLerpVertex(ref new1, p1, p2, t);
                     //
-                    CVertex new2 = new CVertex();
+                    Vertex new2 = new Vertex();
                     new2.point.x = xr;
                     new2.point.y = y;
                     MathUntil.ScreenSpaceLerpVertex(ref new2, p1, p3, t);
@@ -415,7 +421,7 @@ namespace SoftRenderer
         /// </summary>
         /// <param name="left">左端点，值已经经过插值</param>
         /// <param name="right">右端点，值已经经过插值</param>
-        private void ScanlineFill(CVertex left, CVertex right, int yIndex)
+        private void ScanlineFill(Vertex left, Vertex right, int yIndex)
         {
             float dx = right.point.x - left.point.x;
             float step = 1;
@@ -448,21 +454,37 @@ namespace SoftRenderer
                         vIndex = MathUntil.Range(vIndex, 0, _texture.Height - 1);
                         //uv坐标系采用dx风格
                         System.Drawing.Color textrueColor = _texture.GetPixel(vIndex, uIndex);
+                        SoftRenderer.RenderData.Color texColor = new RenderData.Color(textrueColor);//转到我们自定义的color进行计算
 
                         //插值顶点颜色
-                        float r = MathUntil.Lerp(left.color.r, right.color.r, lerpFactor) * w * 255;
-                        float g = MathUntil.Lerp(left.color.g, right.color.g, lerpFactor) * w * 255;
-                        float b = MathUntil.Lerp(left.color.b, right.color.b, lerpFactor) * w * 255;
-                       
+                        SoftRenderer.RenderData.Color vertColor = MathUntil.Lerp(left.vcolor, right.vcolor, lerpFactor) * w;
+                        //插值光照颜色
+                        SoftRenderer.RenderData.Color lightColor = MathUntil.Lerp(left.lightingColor, right.lightingColor, lerpFactor) * w; ;
 
-                        //更新渲染模式渲染
-                        if (RenderMode.Textured == _currentMode)
-                        {
-                            _frameBuff.SetPixel(xIndex, yIndex, textrueColor);
+
+                        if(_lightMode == LightMode.On)
+                        {//光照模式，需要混合光照的颜色
+                            if (RenderMode.Textured == _currentMode)
+                            {
+                                SoftRenderer.RenderData.Color finalColor = texColor * lightColor;
+                                _frameBuff.SetPixel(xIndex, yIndex, finalColor.TransFormToSystemColor());
+                            }
+                            else if (RenderMode.VertexColor == _currentMode)
+                            {
+                                SoftRenderer.RenderData.Color finalColor = vertColor * lightColor;
+                                _frameBuff.SetPixel(xIndex, yIndex, finalColor.TransFormToSystemColor());
+                            }
                         }
-                        else if (RenderMode.VertexColor == _currentMode)
+                        else
                         {
-                            _frameBuff.SetPixel(xIndex, yIndex, System.Drawing.Color.FromArgb((int)r, (int)g, (int)b));
+                            if (RenderMode.Textured == _currentMode)
+                            {
+                                _frameBuff.SetPixel(xIndex, yIndex, textrueColor);
+                            }
+                            else if (RenderMode.VertexColor == _currentMode)
+                            {
+                                _frameBuff.SetPixel(xIndex, yIndex, vertColor.TransFormToSystemColor());
+                            }
                         }
                     }
                 }
@@ -475,7 +497,7 @@ namespace SoftRenderer
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        private void BresenhamDrawLine(CVertex p1, CVertex p2)
+        private void BresenhamDrawLine(Vertex p1, Vertex p2)
         {
             int x = (int)(System.Math.Round(p1.point.x, MidpointRounding.AwayFromZero));
             int y = (int)(System.Math.Round(p1.point.y, MidpointRounding.AwayFromZero));
@@ -559,10 +581,10 @@ namespace SoftRenderer
             {
                 ClearBuff();
                 rot += 0.05f;
-                CMatrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0, 0, 10);
+                Matrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0, 0, 10);
 
-                CMatrix4x4 v = MathUntil.GetView(new CVector3D(0, 0, 0, 1), new CVector3D(0, 0, 1, 1), new CVector3D(0, 1, 0, 0));
-                CMatrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
+                Matrix4x4 v = MathUntil.GetView(new Vector3D(0, 0, 0, 1), new Vector3D(0, 0, 1, 1), new Vector3D(0, 1, 0, 0));
+                Matrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
                 //
                 Draw(m, v, p);
                 

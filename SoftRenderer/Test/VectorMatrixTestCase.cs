@@ -12,33 +12,33 @@ namespace SoftRenderer.Test
         private static bool isEnable = false;
         public static void Test()
         {
-            CVector3D a = new CVector3D(1, 2, 1,1);
-            CVector3D b = new CVector3D(5, 6, 0,1);
-            CVector3D c = new CVector3D(1, 2, 3, 1);
+            Vector3D a = new Vector3D(1, 2, 1,1);
+            Vector3D b = new Vector3D(5, 6, 0,1);
+            Vector3D c = new Vector3D(1, 2, 3, 1);
 
-            float r1 = CVector3D.Dot(a,b);
-            CVector3D r2 = a - b;
-            CVector3D r3 = CVector3D.Cross(a,b);
+            float r1 = Vector3D.Dot(a,b);
+            Vector3D r2 = a - b;
+            Vector3D r3 = Vector3D.Cross(a,b);
             Console.WriteLine("a dot b:{0}", r1);
             Console.WriteLine("a - b:({0},{1},{2},{3})", r2.x, r2.y, r2.z, r2.w);
             Console.WriteLine("a X b:({0},{1},{2},{3})", r3.x, r3.y, r3.z, r3.w);
             //
-            CMatrix4x4 mat1 = new CMatrix4x4(1,2,3,4,
+            Matrix4x4 mat1 = new Matrix4x4(1,2,3,4,
                                             1,2,3,4,
                                             1,2,3,4,
                                             0,0,0,1);
-            CMatrix4x4 mat2 = new CMatrix4x4(1, 2, 3, 4,
+            Matrix4x4 mat2 = new Matrix4x4(1, 2, 3, 4,
                                             1, 2, 3, 4,
                                             1, 2, 3, 4,
                                             1, 2, 3, 4);
-            CMatrix4x4 mat3 = new CMatrix4x4();
+            Matrix4x4 mat3 = new Matrix4x4();
             mat3.Identity();
-            CMatrix4x4 mat4 = new CMatrix4x4(1, 0, 0, 0,
+            Matrix4x4 mat4 = new Matrix4x4(1, 0, 0, 0,
                                            0, 1, 0, 0,
                                            0, 0, 1, 0,
                                            1, 2, 3, 1);
 
-            CMatrix4x4 mat5 = new CMatrix4x4(1, 2, 3, 4,
+            Matrix4x4 mat5 = new Matrix4x4(1, 2, 3, 4,
                                            4, 3, 2, 1,
                                            0, -1, 2, 0,
                                            1, 6, 4, -2);
@@ -56,20 +56,20 @@ namespace SoftRenderer.Test
             showMat(mat2.Transpose());
 
 
-            CMatrix4x4 matr1 = mat1 * mat3;
+            Matrix4x4 matr1 = mat1 * mat3;
             Console.WriteLine("mat1 * mat3:");
             showMat(matr1);
-            CMatrix4x4 matr2 = mat1 * mat2;
+            Matrix4x4 matr2 = mat1 * mat2;
             Console.WriteLine("mat1 * mat2:");
             showMat(matr2);
-            CVector3D r4 = a * mat1;
+            Vector3D r4 = a * mat1;
             Console.WriteLine("a * mat1:({0},{1},{2},{3})", r4.x, r4.y, r4.z, r4.w);
 
-            CVector3D r5 = a * mat4;
+            Vector3D r5 = a * mat4;
             Console.WriteLine("a * mat4:({0},{1},{2},{3})", r5.x, r5.y, r5.z, r5.w);
         }
 
-        public static void showMat(CMatrix4x4 mat)
+        public static void showMat(Matrix4x4 mat)
         {
             if (isEnable)
             {
@@ -81,7 +81,7 @@ namespace SoftRenderer.Test
            
         }
 
-        public static void showVector3(CVector3D v)
+        public static void showVector3(Vector3D v)
         {
             if (isEnable)
             {

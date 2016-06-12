@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SoftRenderer.RenderData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,9 +19,9 @@ namespace SoftRenderer.Math
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public static CMatrix4x4 GetTranslate(float x, float y, float z)
+        public static Matrix4x4 GetTranslate(float x, float y, float z)
         {
-            return new CMatrix4x4(1, 0, 0, 0,
+            return new Matrix4x4(1, 0, 0, 0,
                                    0, 1, 0, 0,
                                    0, 0, 1, 0,
                                    x, y, z, 1);
@@ -32,18 +33,18 @@ namespace SoftRenderer.Math
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public static CMatrix4x4 GetScale(float x, float y, float z)
+        public static Matrix4x4 GetScale(float x, float y, float z)
         {
-            return new CMatrix4x4(x, 0, 0, 0,
+            return new Matrix4x4(x, 0, 0, 0,
                                   0, y, 0, 0,
                                   0, 0, z, 0,
                                   0, 0, 0, 1);
         }
 
 
-        public static CMatrix4x4 GetRotateY(float r)
+        public static Matrix4x4 GetRotateY(float r)
         {
-            CMatrix4x4 rm = new CMatrix4x4();
+            Matrix4x4 rm = new Matrix4x4();
             rm.Identity();
             rm[0, 0] = (float)(System.Math.Cos(r));
 
@@ -55,9 +56,9 @@ namespace SoftRenderer.Math
             return rm;
         }
 
-        public static CMatrix4x4 GetRotateX(float r)
+        public static Matrix4x4 GetRotateX(float r)
         {
-            CMatrix4x4 rm = new CMatrix4x4();
+            Matrix4x4 rm = new Matrix4x4();
             rm.Identity();
             rm[1, 1] = (float)(System.Math.Cos(r));
             rm[1, 2] = (float)(System.Math.Sin(r));
@@ -68,9 +69,9 @@ namespace SoftRenderer.Math
             return rm;
         }
 
-        public static CMatrix4x4 GetRotateZ(float r)
+        public static Matrix4x4 GetRotateZ(float r)
         {
-            CMatrix4x4 rm = new CMatrix4x4();
+            Matrix4x4 rm = new Matrix4x4();
             rm.Identity();
             rm[0, 0] = (float)(System.Math.Cos(r));
             rm[0, 1] = (float)(System.Math.Sin(r));
@@ -86,19 +87,19 @@ namespace SoftRenderer.Math
         /// <param name="lookAt"></param>
         /// <param name="up"></param>
         /// <returns></returns>
-        public static CMatrix4x4 GetView(CVector3D pos, CVector3D lookAt, CVector3D up)
+        public static Matrix4x4 GetView(Vector3D pos, Vector3D lookAt, Vector3D up)
         {
             //视线方向
-            CVector3D dir = lookAt - pos;
-            CVector3D right = CVector3D.Cross(up, dir);
+            Vector3D dir = lookAt - pos;
+            Vector3D right = Vector3D.Cross(up, dir);
             right.Normalize();
             //平移部分
-            CMatrix4x4 t = new CMatrix4x4(1,0,0,0,
+            Matrix4x4 t = new Matrix4x4(1,0,0,0,
                                            0,1,0,0,
                                            0,0,1,0,
                                            -pos.x, -pos.y, -pos.z, 1);
             //旋转部分
-            CMatrix4x4 r= new CMatrix4x4(right.x,up.x,dir.x,0,
+            Matrix4x4 r= new Matrix4x4(right.x,up.x,dir.x,0,
                                            right.y,up.y,dir.y,0,
                                            right.z,up.z,dir.z,0,
                                            0, 0, 0, 1);
@@ -113,9 +114,9 @@ namespace SoftRenderer.Math
         /// <param name="zn">近裁z</param>
         /// <param name="zf">远裁z</param>
         /// <returns></returns>
-        public static CMatrix4x4 GetProjection(float fov, float aspect, float zn, float zf)
+        public static Matrix4x4 GetProjection(float fov, float aspect, float zn, float zf)
         {
-            CMatrix4x4 p = new CMatrix4x4();
+            Matrix4x4 p = new Matrix4x4();
             p.SetZero();
             p[0, 0] = (float)(1 / (System.Math.Tan(fov * 0.5f) * aspect));
             p[1, 1] = (float)(1 / System.Math.Tan(fov * 0.5f));
@@ -148,22 +149,48 @@ namespace SoftRenderer.Math
             }
         }
         /// <summary>
+        /// 颜色插值
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static Color Lerp(Color a, Color b, float t)
+        {
+            if (t <= 0)
+            {
+                return a;
+            }
+            else if (t >= 1)
+            {
+                return b;
+            }
+            else
+            {
+                return t * b + (1 - t) * a;
+            }
+        }
+        /// <summary>
         /// 屏幕空间插值生成新顶点，此时已近经过透视除法，z信息已经没有作用
         /// </summary>
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static void ScreenSpaceLerpVertex(ref CVertex v, CVertex v1, CVertex v2, float t)
+        public static void ScreenSpaceLerpVertex(ref Vertex v, Vertex v1, Vertex v2, float t)
         {
             v.onePerZ = MathUntil.Lerp(v1.onePerZ, v2.onePerZ, t);
             //
             v.u = MathUntil.Lerp(v1.u, v2.u, t);
             v.v = MathUntil.Lerp(v1.v, v2.v, t);
             //
-            v.color.r = MathUntil.Lerp(v1.color.r, v2.color.r, t);
-            v.color.g = MathUntil.Lerp(v1.color.g, v2.color.g, t);
-            v.color.b = MathUntil.Lerp(v1.color.b, v2.color.b, t);
+            v.vcolor.r = MathUntil.Lerp(v1.vcolor.r, v2.vcolor.r, t);
+            v.vcolor.g = MathUntil.Lerp(v1.vcolor.g, v2.vcolor.g, t);
+            v.vcolor.b = MathUntil.Lerp(v1.vcolor.b, v2.vcolor.b, t);
+            //
+            v.lightingColor.r = MathUntil.Lerp(v1.lightingColor.r, v2.lightingColor.r, t);
+            v.lightingColor.g = MathUntil.Lerp(v1.lightingColor.g, v2.lightingColor.g, t);
+            v.lightingColor.b = MathUntil.Lerp(v1.lightingColor.b, v2.lightingColor.b, t);
         }
 
         public static int Range(int v, int min, int max)

@@ -13,16 +13,16 @@ namespace SoftRenderer.Test
     public class CubeTestData
     {
         //顶点坐标
-        public static CVector3D[] pointList = {
-                                            new CVector3D(-1,  1, -1),
-                                            new CVector3D(-1, -1, -1),
-                                            new CVector3D(1, -1, -1),
-                                            new CVector3D(1, 1, -1),
+        public static Vector3D[] pointList = {
+                                            new Vector3D(-1,  1, -1),
+                                            new Vector3D(-1, -1, -1),
+                                            new Vector3D(1, -1, -1),
+                                            new Vector3D(1, 1, -1),
 
-                                            new CVector3D( -1,  1, 1),
-                                            new CVector3D(-1, -1, 1),
-                                            new CVector3D(1, -1, 1),
-                                            new CVector3D(1, 1, 1)
+                                            new Vector3D( -1,  1, 1),
+                                            new Vector3D(-1, -1, 1),
+                                            new Vector3D(1, -1, 1),
+                                            new Vector3D(1, 1, 1)
                                         };
         //三角形顶点索引 12个面
         public static int[] indexs = {   0,1,2,
@@ -65,24 +65,43 @@ namespace SoftRenderer.Test
                                    new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0)
                               };
 
-        public static CVector3D[] vertColors = {
-                                             new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1),
+        public static Vector3D[] vertColors = {
+                                             new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
                                                //
-                                                new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1),
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
                                                //
-                                                new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1),
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
                                                //
-                                                new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1),
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
                                                //
-                                                new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1),
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
                                                //
-                                                new CVector3D( 0, 1, 0), new CVector3D( 0, 0, 1), new CVector3D( 1, 0, 0),
-                                               new CVector3D( 0, 1, 0), new CVector3D( 1, 0, 0), new CVector3D( 0, 0, 1)
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1)
                                          };
+        public static Vector3D[] norlmas = {
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                               //
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                               //
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                               //
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                               //
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                               //
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1)
+                                            };
     }
 }
