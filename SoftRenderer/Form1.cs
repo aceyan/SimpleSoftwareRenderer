@@ -25,6 +25,8 @@ namespace SoftRenderer
         private LightMode _lightMode;//光照模式
         private Mesh _mesh;
         private Light _light;
+        private Camera _camera;
+        private SoftRenderer.RenderData.Color _ambientColor;//全局环境光颜色 
 
         private uint _showTrisCount;//测试数据，记录当前显示的三角形数
 
@@ -45,12 +47,17 @@ namespace SoftRenderer
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
-            _currentMode = RenderMode.VertexColor;//渲染模式
+            _currentMode = RenderMode.Textured;//渲染模式
             _lightMode = LightMode.On;
+            _ambientColor = new RenderData.Color(1f, 1f, 1f);
 
-            //_mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors, CubeTestData.norlmas);
-            _mesh = new Mesh(QuadTestData.pointList, QuadTestData.indexs, QuadTestData.uvs, QuadTestData.vertColors, CubeTestData.norlmas); //打开注释可以切换mesh
+            _mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors, CubeTestData.norlmas, QuadTestData.mat);
+            //_mesh = new Mesh(QuadTestData.pointList, QuadTestData.indexs, QuadTestData.uvs, QuadTestData.vertColors, QuadTestData.norlmas, QuadTestData.mat); //打开注释可以切换mesh
 
+            //定义光照
+            _light = new Light(new Vector3D(50, 0, 0), new RenderData.Color(1, 1, 1));
+            //定义相机
+            _camera = new Camera(new Vector3D(0, 0, 0, 1), new Vector3D(0, 0, 1, 1), new Vector3D(0, 1, 0, 0), (float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
 
             System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
     
@@ -106,9 +113,9 @@ namespace SoftRenderer
             vertex.u *= vertex.onePerZ;
             vertex.v *= vertex.onePerZ;
                 //
-            vertex.vcolor.r *= vertex.onePerZ;
-            vertex.vcolor.g *= vertex.onePerZ;
-            vertex.vcolor.b *= vertex.onePerZ;
+            vertex.vcolor *= vertex.onePerZ;
+            //
+            vertex.lightingColor *= vertex.onePerZ;
         }
         /// <summary>
         /// 检查是否裁剪这个顶点,简单的cvv裁剪,在透视除法之前
@@ -172,9 +179,9 @@ namespace SoftRenderer
         private void Draw(Matrix4x4 m, Matrix4x4 v, Matrix4x4 p)
         {
             _showTrisCount = 0;
-            for (int i = 0; i + 2 < _mesh.Vertices.Length; i += 3)
+            for (int i = 0; i + 2 < _mesh.vertices.Length; i += 3)
             {
-                DrawTriangle(_mesh.Vertices[i], _mesh.Vertices[i + 1], _mesh.Vertices[i + 2], m, v, p);
+                DrawTriangle(_mesh.vertices[i], _mesh.vertices[i + 1], _mesh.vertices[i + 2], m, v, p);
             }
             Console.WriteLine("显示的三角形数："+ _showTrisCount);
         }
@@ -189,6 +196,13 @@ namespace SoftRenderer
         private void DrawTriangle(Vertex p1, Vertex p2, Vertex p3, Matrix4x4 m, Matrix4x4 v, Matrix4x4 p)
         {
             //--------------------几何阶段---------------------------
+            if (_lightMode == LightMode.On)
+            {//进行顶点光照
+                Lighting(m, _camera.pos, ref p1);
+                Lighting(m, _camera.pos, ref p2);
+                Lighting(m, _camera.pos, ref p3);
+            }
+
             //变换到相机空间
             SetMVTransform(m, v,ref p1);
             SetMVTransform(m, v, ref p2);
@@ -564,6 +578,38 @@ namespace SoftRenderer
 
         }
 
+        /// <summary>
+        /// 实现了“基础光照模型”，在世界空间进行顶点光照处理
+        /// </summary>
+        /// <param name="v"></param>
+        private void Lighting(Matrix4x4 m, Vector3D worldEyePositon ,ref Vertex v)
+        {
+            Vector3D worldPoint = v.point * m;//世界空间顶点位置
+            Vector3D normal = v.normal * m.Inverse().Transpose();//模型空间法线乘以世界矩阵的逆转置得到世界空间法线
+            normal = normal.Normalize();
+            SoftRenderer.RenderData.Color emissiveColor = _mesh.material.emissive;//自发光
+            SoftRenderer.RenderData.Color ambientColor = _ambientColor * _mesh.material.ka;//环境光 
+
+            Vector3D inLightDir = (_light.worldPosition - worldPoint).Normalize();
+            float diffuse = Vector3D.Dot(normal, inLightDir);
+            if(diffuse < 0)
+            {
+                diffuse = 0;
+            }
+            SoftRenderer.RenderData.Color diffuseColor = _mesh.material.diffuse * diffuse * _light.lightColor;//漫反射
+            //
+            Vector3D inViewDir = (worldEyePositon - worldPoint).Normalize();
+            Vector3D h = (inViewDir + inLightDir).Normalize();
+            float specular = 0;
+            if(diffuse != 0)
+            {//防止出现光源在物体背面产生高光的情况
+                specular = (float)System.Math.Pow(MathUntil.Range(Vector3D.Dot(h, normal), 0, 1), _mesh.material.shininess);
+            }
+            SoftRenderer.RenderData.Color specularColor = _mesh.material.specular * specular * _light.lightColor;//镜面高光
+            //
+            v.lightingColor = emissiveColor + ambientColor + diffuseColor + specularColor;
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
         }
@@ -583,8 +629,8 @@ namespace SoftRenderer
                 rot += 0.05f;
                 Matrix4x4 m = MathUntil.GetRotateX(rot) * MathUntil.GetRotateY(rot) * MathUntil.GetTranslate(0, 0, 10);
 
-                Matrix4x4 v = MathUntil.GetView(new Vector3D(0, 0, 0, 1), new Vector3D(0, 0, 1, 1), new Vector3D(0, 1, 0, 0));
-                Matrix4x4 p = MathUntil.GetProjection((float)System.Math.PI / 4, this.MaximumSize.Width / (float)this.MaximumSize.Height, 1f, 500f);
+                Matrix4x4 v = MathUntil.GetView(_camera.pos, _camera.lookAt, _camera.up);
+                Matrix4x4 p = MathUntil.GetProjection(_camera.fov, _camera.aspect, _camera.zn, _camera.zf);
                 //
                 Draw(m, v, p);
                 

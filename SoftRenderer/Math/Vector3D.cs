@@ -84,6 +84,16 @@ namespace SoftRenderer.Math
             v.w = 0;
             return v;
         }
+
+        public static Vector3D operator +(Vector3D lhs, Vector3D rhs)
+        {
+            Vector3D v = new Vector3D();
+            v.x = lhs.x + rhs.x;
+            v.y = lhs.y + rhs.y;
+            v.z = lhs.z + rhs.z;
+            v.w = 0;
+            return v;
+        }
         /// <summary>
         /// 点乘
         /// </summary>

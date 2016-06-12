@@ -50,12 +50,14 @@ namespace SoftRenderer.RenderData
             this.point = point;
             this.normal = normal;
             this.point.w = 1;
+            vcolor = new Color();
             vcolor.r = r;
             vcolor.g = g;
             vcolor.b = b;
             onePerZ = 1;
             this.u = u;
             this.v = v;
+            lightingColor = new Color();
             lightingColor.r = 1;
             lightingColor.g = 1;
             lightingColor.b = 1;
@@ -65,15 +67,11 @@ namespace SoftRenderer.RenderData
         {
             point = v.point;
             normal = v.normal;
-            vcolor.r = v.vcolor.r;
-            vcolor.g = v.vcolor.g;
-            vcolor.b = v.vcolor.b;
+            this.vcolor = v.vcolor;
             onePerZ = 1;
             this.u = v.u;
             this.v = v.v;
-            lightingColor.r = 1;
-            lightingColor.g = 1;
-            lightingColor.b = 1;
+            this.lightingColor = v.lightingColor;
         }
     }
 }

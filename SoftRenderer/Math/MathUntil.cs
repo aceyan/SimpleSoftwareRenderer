@@ -184,13 +184,9 @@ namespace SoftRenderer.Math
             v.u = MathUntil.Lerp(v1.u, v2.u, t);
             v.v = MathUntil.Lerp(v1.v, v2.v, t);
             //
-            v.vcolor.r = MathUntil.Lerp(v1.vcolor.r, v2.vcolor.r, t);
-            v.vcolor.g = MathUntil.Lerp(v1.vcolor.g, v2.vcolor.g, t);
-            v.vcolor.b = MathUntil.Lerp(v1.vcolor.b, v2.vcolor.b, t);
+            v.vcolor = MathUntil.Lerp(v1.vcolor, v2.vcolor, t);
             //
-            v.lightingColor.r = MathUntil.Lerp(v1.lightingColor.r, v2.lightingColor.r, t);
-            v.lightingColor.g = MathUntil.Lerp(v1.lightingColor.g, v2.lightingColor.g, t);
-            v.lightingColor.b = MathUntil.Lerp(v1.lightingColor.b, v2.lightingColor.b, t);
+            v.lightingColor = MathUntil.Lerp(v1.lightingColor, v2.lightingColor, t);
         }
 
         public static int Range(int v, int min, int max)
@@ -200,6 +196,19 @@ namespace SoftRenderer.Math
                 return min;
             }
             if(v >= max)
+            {
+                return max;
+            }
+            return v;
+        }
+
+        public static float Range(float v, float min, float max)
+        {
+            if (v <= min)
+            {
+                return min;
+            }
+            if (v >= max)
             {
                 return max;
             }

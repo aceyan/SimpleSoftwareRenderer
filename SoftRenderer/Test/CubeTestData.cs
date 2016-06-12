@@ -1,4 +1,5 @@
 ﻿using SoftRenderer.Math;
+using SoftRenderer.RenderData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace SoftRenderer.Test
                                     new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
                                    new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0)
                               };
-
+        //顶点色
         public static Vector3D[] vertColors = {
                                              new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
                                                new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
@@ -84,24 +85,28 @@ namespace SoftRenderer.Test
                                                 new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
                                                new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1)
                                          };
+        //法线
         public static Vector3D[] norlmas = {
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                                new Vector3D( 0, 0, -1), new Vector3D(0, 0, -1), new Vector3D( 0, 0, -1),
+                                               new Vector3D(0, 0, -1), new Vector3D( 0, 0, -1), new Vector3D( 0, 0, -1),
                                                //
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                                new Vector3D( 0, 0, 1), new Vector3D( 0, 0, 1), new Vector3D( 0, 0, 1),
+                                               new Vector3D( 0, 0, 1), new Vector3D( 0, 0, 1), new Vector3D( 0, 0, 1),
                                                //
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                                new Vector3D( -1, 0, 0), new Vector3D( -1, 0, 0), new Vector3D( -1, 0, 0),
+                                               new Vector3D( -1, 0, 0), new Vector3D(-1, 0, 0), new Vector3D( -1, 0, 0),
                                                //
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                                new Vector3D( 0, -1, 0), new Vector3D(  0, -1, 0), new Vector3D(  0, -1, 0),
+                                               new Vector3D(  0, -1, 0), new Vector3D( 0, -1, 0), new Vector3D( 0, -1, 0),
                                                //
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1),
+                                                new Vector3D( 1, 0, 0), new Vector3D( 1, 0, 0), new Vector3D( 1, 0, 0),
+                                               new Vector3D( 1, 0, 0), new Vector3D( 1, 0, 0), new Vector3D( 1, 0, 0),
                                                //
-                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 0, 1), new Vector3D( 1, 0, 0),
-                                               new Vector3D( 0, 1, 0), new Vector3D( 1, 0, 0), new Vector3D( 0, 0, 1)
+                                                new Vector3D( 0, 1, 0), new Vector3D( 0, 1, 0), new Vector3D( 0, 1, 0),
+                                               new Vector3D( 0, 1, 0 ), new Vector3D(0, 1, 0), new Vector3D( 0, 1, 0)
                                             };
+        //材质
+        public static Material mat = new Material(new Color(0, 0, 0.1f), 0.1f, new Color(0.3f, 0.3f, 0.3f), new Color(1, 1, 1), 99);
+
     }
 }
