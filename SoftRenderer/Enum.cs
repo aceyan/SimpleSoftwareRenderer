@@ -32,4 +32,18 @@ namespace SoftRenderer
         On,
         Off
     }
+    /// <summary>
+    /// 纹理过滤模式
+    /// </summary>
+    public enum TextureFilterMode
+    {
+        /// <summary>
+        /// 点采样
+        /// </summary>
+        point,
+        /// <summary>
+        /// 双线性采样
+        /// </summary>
+        Bilinear
+    }
 }

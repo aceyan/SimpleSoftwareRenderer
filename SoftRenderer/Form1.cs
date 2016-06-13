@@ -21,13 +21,15 @@ namespace SoftRenderer
         private Bitmap _frameBuff;//用一张bitmap来做帧缓冲
         private Graphics _frameG;
         private float[,] _zBuff;//z缓冲，用来做深度测试
-        private RenderMode _currentMode;//渲染模式
-        private LightMode _lightMode;//光照模式
         private Mesh _mesh;
         private Light _light;
         private Camera _camera;
         private SoftRenderer.RenderData.Color _ambientColor;//全局环境光颜色 
-
+        //
+        private RenderMode _currentMode;//渲染模式
+        private LightMode _lightMode;//光照模式
+        private TextureFilterMode _textureFilterMode;//纹理采样模式
+        //
         private uint _showTrisCount;//测试数据，记录当前显示的三角形数
 
         public SoftRendererDemo()
@@ -44,11 +46,14 @@ namespace SoftRenderer
                 _texture = new Bitmap(256, 256);
                 initTexture();
             }
+            //
+            _currentMode = RenderMode.Textured;
+            _lightMode = LightMode.Off;
+            _textureFilterMode = TextureFilterMode.Bilinear;
+            //
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
             _frameG = Graphics.FromImage(_frameBuff);
             _zBuff = new float[this.MaximumSize.Height, this.MaximumSize.Width];
-            _currentMode = RenderMode.Textured;//渲染模式
-            _lightMode = LightMode.On;
             _ambientColor = new RenderData.Color(1f, 1f, 1f);
 
             _mesh = new Mesh(CubeTestData.pointList, CubeTestData.indexs, CubeTestData.uvs, CubeTestData.vertColors, CubeTestData.norlmas, QuadTestData.mat);
@@ -462,13 +467,30 @@ namespace SoftRenderer
                         //uv 插值，求纹理颜色
                         float u = MathUntil.Lerp(left.u, right.u, lerpFactor) * w * (_texture.Width - 1);
                         float v = MathUntil.Lerp(left.v, right.v, lerpFactor) * w * (_texture.Height - 1);
-                        int uIndex = (int)(u);
-                        int vIndex = (int)(v);
-                        uIndex = MathUntil.Range(uIndex, 0, _texture.Width - 1);
-                        vIndex = MathUntil.Range(vIndex, 0, _texture.Height - 1);
-                        //uv坐标系采用dx风格
-                        System.Drawing.Color textrueColor = _texture.GetPixel(vIndex, uIndex);
-                        SoftRenderer.RenderData.Color texColor = new RenderData.Color(textrueColor);//转到我们自定义的color进行计算
+                        //纹理采样
+                        SoftRenderer.RenderData.Color texColor = new RenderData.Color(1,1,1);
+                        if(_textureFilterMode == TextureFilterMode.point)
+                        {//点采样
+                            int uIndex = (int)System.Math.Round(u , MidpointRounding.AwayFromZero);
+                            int vIndex = (int)System.Math.Round(v , MidpointRounding.AwayFromZero);
+                            uIndex = MathUntil.Range(uIndex, 0, _texture.Width - 1);
+                            vIndex = MathUntil.Range(vIndex, 0, _texture.Height - 1);
+                            //uv坐标系采用dx风格
+                            texColor = new RenderData.Color(ReadTexture(uIndex, vIndex));//转到我们自定义的color进行计算
+                        }
+                        else if(_textureFilterMode == TextureFilterMode.Bilinear)
+                        {//双线性采样
+                            float uIndex = (float)System.Math.Floor(u);
+                            float vIndex = (float)System.Math.Floor(v);
+                            float du = u - uIndex;
+                            float dv = v - vIndex;
+
+                            SoftRenderer.RenderData.Color texcolor1 = new RenderData.Color(ReadTexture((int)uIndex, (int)vIndex)) * (1 - du) * (1 - dv);
+                            SoftRenderer.RenderData.Color texcolor2 = new RenderData.Color(ReadTexture((int)uIndex + 1, (int)vIndex)) * du * (1 - dv);
+                            SoftRenderer.RenderData.Color texcolor3 = new RenderData.Color(ReadTexture((int)uIndex, (int)vIndex + 1)) * (1 - du) * dv;
+                            SoftRenderer.RenderData.Color texcolor4 = new RenderData.Color(ReadTexture((int)uIndex + 1, (int)vIndex + 1)) * du * dv;
+                            texColor = texcolor1 + texcolor2 + texcolor3 + texcolor4;
+                        }
 
                         //插值顶点颜色
                         SoftRenderer.RenderData.Color vertColor = MathUntil.Lerp(left.vcolor, right.vcolor, lerpFactor) * w;
@@ -493,7 +515,7 @@ namespace SoftRenderer
                         {
                             if (RenderMode.Textured == _currentMode)
                             {
-                                _frameBuff.SetPixel(xIndex, yIndex, textrueColor);
+                                _frameBuff.SetPixel(xIndex, yIndex, texColor.TransFormToSystemColor());
                             }
                             else if (RenderMode.VertexColor == _currentMode)
                             {
@@ -608,6 +630,13 @@ namespace SoftRenderer
             SoftRenderer.RenderData.Color specularColor = _mesh.material.specular * specular * _light.lightColor;//镜面高光
             //
             v.lightingColor = emissiveColor + ambientColor + diffuseColor + specularColor;
+        }
+
+        private System.Drawing.Color ReadTexture(int uIndex,int vIndex)
+        {
+            int u = MathUntil.Range(uIndex, 0, _texture.Width - 1);
+            int v = MathUntil.Range(vIndex, 0, _texture.Height - 1);
+            return _texture.GetPixel(u, v);
         }
 
         protected override void OnPaint(PaintEventArgs e)
