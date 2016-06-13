@@ -47,23 +47,23 @@ namespace SoftRenderer.Test
 
         //uv坐标
         public static Point2D[] uvs ={
-                                   new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0),
+                                  new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0),
                                    //
-                                    new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0),
+                                    new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0),
                                    //
-                                    new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0),
+                                    new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0),
                                    //
-                                    new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0),
+                                    new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0),
                                    //
-                                    new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0),
+                                     new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0),
                                    ///
-                                    new Point2D(0, 1),new Point2D( 1, 1),new Point2D(1, 0),
-                                   new Point2D(0, 1),new Point2D(1, 0),new Point2D(0, 0)
+                                     new Point2D(0, 0),new Point2D( 0, 1),new Point2D(1, 1),
+                                   new Point2D(0, 0),new Point2D(1, 1),new Point2D(1, 0)
                               };
         //顶点色
         public static Vector3D[] vertColors = {

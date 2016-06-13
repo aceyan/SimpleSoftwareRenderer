@@ -48,7 +48,7 @@ namespace SoftRenderer
             }
             //
             _currentMode = RenderMode.Textured;
-            _lightMode = LightMode.Off;
+            _lightMode = LightMode.On;
             _textureFilterMode = TextureFilterMode.Bilinear;
             //
             _frameBuff = new Bitmap(this.MaximumSize.Width, this.MaximumSize.Height);
