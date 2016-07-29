@@ -668,7 +668,7 @@ namespace SoftRenderer
                     g = this.CreateGraphics();
                 }
                 g.Clear(System.Drawing.Color.Black);
-                g.DrawImage(_frameBuff, rot, 0); 
+                g.DrawImage(_frameBuff, 0, 0); 
             }
         }
 
